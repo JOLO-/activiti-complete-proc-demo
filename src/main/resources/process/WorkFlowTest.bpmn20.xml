@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+
+  <signal id="launchSubprocessSignal" name="launchSubprocessSignal"/>
+  <process id="mainProcess">
+    <startEvent id="start"/>
+     <sequenceFlow id="start-chooseChampionTask" sourceRef="start" targetRef="chooseChampionTask"/>
+    <userTask id="chooseChampionTask" name="chooseChampionTask"></userTask>
+
+      <boundaryEvent id="launchSubprocess" attachedToRef="chooseChampionTask" cancelActivity="false">
+        <signalEventDefinition signalRef="launchSubprocessSignal" />
+      </boundaryEvent>
+
+      <sequenceFlow id="launchSubprocess-subProcess" sourceRef="launchSubprocess" targetRef="subProcess" />
+      <sequenceFlow id="chooseChampionTask-afterAcceptUser" sourceRef="chooseChampionTask" targetRef="afterAcceptUser"/>
+    <serviceTask id="afterAcceptUser" name="afterAcceptUser" activiti:class="org.jolo.AfterAcceptCandidateService"/>
+      <sequenceFlow id="afterAcceptUser-mainEnd" sourceRef="afterAcceptUser" targetRef="mainEnd"></sequenceFlow>
+    <endEvent id="mainEnd"/>
+
+      <subProcess id="subProcess" activiti:async="true">
+          <startEvent id="subStart" name="Start" activiti:async="true"/>
+            <sequenceFlow id="subStart-myService" sourceRef="subStart" targetRef="subService"></sequenceFlow>
+          <serviceTask id="subService" name="subService" activiti:async="true" activiti:class="org.jolo.SubService"></serviceTask>
+            <sequenceFlow id="subService-subUserTask" sourceRef="subService" targetRef="subUserTask"></sequenceFlow>
+          <userTask id="subUserTask" name="subUserTask"></userTask>
+            <sequenceFlow id="subUserTask-acceptCompliments" sourceRef="subUserTask" targetRef="acceptCompliments"></sequenceFlow>
+          <serviceTask id="acceptCompliments" name="acceptCompliments" activiti:class="org.jolo.AcceptComplimentsService"/>
+            <sequenceFlow id="acceptCompliments-subEnd" sourceRef="acceptCompliments" targetRef="subEnd"></sequenceFlow>
+          <endEvent id="subEnd" name="End"></endEvent>
+      </subProcess>
+  </process>
+</definitions>
